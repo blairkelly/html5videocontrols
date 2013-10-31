@@ -9,17 +9,18 @@ var vidcontrols = function (target, options) {
 		seek: true,
 		fullscreen: false,
 		autoplay: false,
-		seekbitColor: '#EEE',
-		seekbitActiveColor: '#678',
-		seekbitBoundary: 1,
+		seekbitpointColor: '#FFF',
+		seekbitpointActiveColor: '#CCC',
+		seekbitBoundary: 7,
 		seekfillColor: '#00aae8',
-		seekfillNegativeColor: "#CCC"
+		seekfillNegativeColor: "#AAA",
+		bottom: '0px'
 	}
 	for ( var i in options ) {
 		this.options[i] = options[i];
 	}
-	var seekbitColor = this.options.seekbitColor;
-	var seekbitActiveColor = this.options.seekbitActiveColor;
+	var seekbitpointColor = this.options.seekbitpointColor;
+	var seekbitpointActiveColor = this.options.seekbitpointActiveColor;
 	var seekbitBoundary = Math.abs(this.options.seekbitBoundary);
 	if(target.closest('.vidcradle').length) {
 		target.closest('.vidcradle').find('.vidcontrols').remove();
@@ -27,10 +28,11 @@ var vidcontrols = function (target, options) {
 	}
 	target.wrap('<div class="vidcradle" style="position: relative; display: inline-block;"></div>');
 	var vidcradle = target.closest('.vidcradle');
-	var vchtml = '<div class="vidcontrols" style="-webkit-touch-callout: none; -webkit-user-select: none; user-select: none; background-color:rgba(0,0,0,0.50); font-family: Arial; height: 36px; width: 100%; position: absolute; bottom: 0; left: 0;"></div>';
+	var vchtml = '<div class="vidcontrols" style="-webkit-touch-callout: none; -webkit-user-select: none; user-select: none; background-color:rgba(0,0,0,0.52); font-family: Arial; height: 36px; width: 100%; position: absolute; left: 0;"></div>';
 	vidcradle.append(vchtml);
 	var videocontrols = vidcradle.find('.vidcontrols');
-	videocontrols.append('<div class="playpause" style="position: absolute; padding: 9px 18px 9px 18px;"></div>')
+	videocontrols.css('bottom', this.options.bottom);
+	videocontrols.append('<div class="playpause" style="cursor: pointer; position: absolute; padding: 9px 18px 9px 18px;"></div>')
 	var playpause = videocontrols.find('.playpause');
 	playpause.append('<div class="play" style="display: none; width: 0; height: 0; border-top: 9px solid transparent; border-bottom: 9px solid transparent; border-left: 18px solid white;"></div>');
 	playpause.append('<div class="pause" style="display: none;"><div style="display: inline-block; width: 6px; height: 18px; margin-right: 5px; background: #fff;"></div><div style="display: inline-block; width: 6px; height: 18px; background: #fff;"></div></div>');
@@ -38,7 +40,7 @@ var vidcontrols = function (target, options) {
 	var timedisplay = videocontrols.find('.time');
 	videocontrols.append('<div class="opts" style="position: absolute; top: 0px; right: 0px; padding-right: 10px;"></div>');
 	var opts = videocontrols.find('.opts');
-	videocontrols.append('<div class="seekbar" style="position: relative; margin: 15px 0 0 95px; height: 6px; background-color:rgba(10,10,10,0.72);"></div>');
+	videocontrols.append('<div class="seekbar" style="display: none; position: relative; margin: 15px 0 0 95px; height: 6px; background-color:rgba(10,10,10,0.72);"></div>');
 	var seekbar = videocontrols.find('.seekbar');
 	seekbar.append('<div class="seekfill-negative" style="display: none; position: absolute; top: 0; left: 0; width: 0px; height: 6px;"></div>');
 	var seekfillnegative = seekbar.find('.seekfill-negative');
@@ -46,10 +48,13 @@ var vidcontrols = function (target, options) {
 	seekbar.append('<div class="seekfill" style="position: absolute; top: 0; left: 0; width: 0px; height: 6px;"></div>')
 	var seekfill = seekbar.find('.seekfill');
 	seekfill.css('background-color', this.options.seekfillColor);
-	seekbar.append('<div class="seekbit" style="display: none; cursor: pointer; position: absolute; width: 16px; height: 16px; -webkit-border-radius: 8px; top: -5px; left: -1px;"></div>')
+	//seekbar.append('<div class="seekbit" style="display: none; cursor: pointer; position: absolute; width: 16px; height: 16px; -webkit-border-radius: 8px; top: -5px; left: -1px;"></div>')
+	seekbar.append('<div class="seekbit" style="display: none; cursor: pointer; position: absolute; width: 28px; height: 28px; top: -11px; left: -8px;"></div>')
 	var seekbit = seekbar.find('.seekbit');
 	seekbit.data('seeking', false);
-	seekbit.css('background-color', this.options.seekbitColor);
+	seekbit.append('<div class="seekbitpoint" style="position: absolute; width: 16px; height: 16px; -webkit-border-radius: 8px; top: 6px; left: 6px;"></div>');
+	var seekbitpoint = seekbit.find('.seekbitpoint');
+	seekbitpoint.css('background-color', this.options.seekbitpointColor);
 	opts.append('<div class="duration" style="color: #fff; margin-top: 10px; font-size: 12px;">0:00</div>');
 	var duration = opts.find('.duration');
 
@@ -94,10 +99,12 @@ var vidcontrols = function (target, options) {
 		showplaybtn();
 	});
 	target.on('durationchange', function () {
+		seekbar.css('display', 'none');
 		updatetime(duration, vidstate.duration);
 		var nw = opts.width() + 18 + 'px';
 		seekbar.css('margin-right',  nw);
 		seekbit.css('display', 'block');
+		seekbar.css('display', 'block');
 		seekbit.data('fullrange', seekbar.width() - seekbit.width() + (seekbitBoundary * 2));
 		seekbit.data('boundaryLeft', (0 - seekbitBoundary));
 		seekbit.data('boundaryRight', (seekbit.data('fullrange') - seekbitBoundary));
@@ -107,7 +114,7 @@ var vidcontrols = function (target, options) {
 			updatetime(timedisplay, vidstate.currentTime);
 			var percentage = vidstate.currentTime / vidstate.duration;
 			var seekbitpos = ((seekbit.data('fullrange') * percentage) - seekbitBoundary) + 'px';
-			var seekfillwidth = (seekbit.data('fullrange') * percentage) + 'px';
+			var seekfillwidth = (seekbar.width() * percentage) + 'px';
 			seekbit.css('left', seekbitpos);
 			seekfill.css('width', seekfillwidth);
 
@@ -124,9 +131,14 @@ var vidcontrols = function (target, options) {
 					hidecontrols();
 				}
 			}
+		} else if (!seekbit.data('touched')) {
+			var seekdiff = Math.abs(seekbit.data('seekto') - vidstate.currentTime);
+			if(seekdiff < 5) {
+				seekbit.data('seeking', false);
+			}
 		}
 	});
-	target.on('touchstart mousedown mouseenter', function () {
+	target.on('touchstart mousedown mouseenter mousemove', function () {
 		if(videocontrols.hasClass('hiding') || videocontrols.hasClass('hidden')) {
 			showcontrols();
 		}
@@ -136,7 +148,7 @@ var vidcontrols = function (target, options) {
 		e.stopPropagation();
 		if(!playpausedelay) {
 			if(vidstate.paused) {
-			vidstate.play();
+				vidstate.play();
 			} else {
 				vidstate.pause();
 			}
@@ -164,30 +176,38 @@ var vidcontrols = function (target, options) {
     		newseekposx = seekbit.data('boundaryRight');
     	}
     	seekbit.css('left', newseekposx + 'px');
-    	var seekfillwidth = newseekposx + seekbitBoundary + 'px';
-    	seekfill.css('width', seekfillwidth);
     	var percentage = (newseekposx + seekbitBoundary) / seekbit.data('fullrange');
-    	var newseconds = percentage * vidstate.duration;
+    	var newseconds = 0;
+    	if(percentage > 0.9975) {
+    		//this is a temporary fix... something mucks up when you try to seek to the end.
+    		newseconds = (percentage * vidstate.duration) - 0.5;
+    	} else {
+    		newseconds = percentage * vidstate.duration;
+    	}
+    	var seekfillwidth = (percentage * seekbar.width()) + 'px';
+    	seekfill.css('width', seekfillwidth);
     	updatetime(timedisplay, newseconds);
+    	seekbit.data('percentage', percentage);
     	seekbit.data('seekto', newseconds);
     }
     var breakpoint = function (event) {
-    	seekbit.css('background-color', seekbitColor);
+    	seekbitpoint.css('background-color', seekbitpointColor);
 		thedoc.off('mousemove touchmove', doseek);
 		thedoc.off('mouseup touchend', breakpoint);
 		seekfillnegative.css('display', 'none');
     	vidstate.currentTime = seekbit.data('seekto');
     	setTimeout(function() {
     		vidstate.play();
-    		seekbit.data('seeking', false);
-    	}, 100);
+    		seekbit.data('touched', false);
+    	}, 300);
     }
 	seekbit.on('mousedown touchstart', function (event) {
 		showcontrols();
 		seekfillnegative.css('width', seekfill.width() + 'px');
 		seekfillnegative.css('display', 'block');
 		seekbit.data('seeking', true);
-		seekbit.css('background-color', seekbitActiveColor);
+		seekbit.data('touched', true);
+		seekbitpoint.css('background-color', seekbitpointActiveColor);
         thedoc.on('mousemove touchmove', doseek);
         thedoc.on('mouseup touchend', breakpoint);
         getpointpos(event.originalEvent);
