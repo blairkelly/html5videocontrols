@@ -177,8 +177,10 @@ var vidcontrols = function (target, options) {
 		thedoc.off('mouseup touchend', breakpoint);
 		seekfillnegative.css('display', 'none');
     	vidstate.currentTime = seekbit.data('seekto');
-    	vidstate.play();
-		seekbit.data('seeking', false);
+    	setTimeout(function() {
+    		vidstate.play();
+    		seekbit.data('seeking', false);
+    	}, 100);
     }
 	seekbit.on('mousedown touchstart', function (event) {
 		showcontrols();
