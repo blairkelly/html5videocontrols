@@ -9,6 +9,7 @@ var vidcontrols = function (target, options) {
 		seek: true,
 		fullscreen: false,
 		autoplay: false,
+		taptoplaypause: false,
 		seekbitpointColor: '#FFF',
 		seekbitpointActiveColor: '#CCC',
 		seekbitBoundary: 7,
@@ -31,8 +32,9 @@ var vidcontrols = function (target, options) {
 	var vchtml = '<div class="vidcontrols" style="-webkit-touch-callout: none; -webkit-user-select: none; user-select: none; background-color:rgba(0,0,0,0.52); font-family: Arial; height: 36px; width: 100%; position: absolute; left: 0;"></div>';
 	vidcradle.append(vchtml);
 	var videocontrols = vidcradle.find('.vidcontrols');
+	videocontrols.css('-webkit-overflow-scrolling', 'touch'); //not necessary for iOS 7... should remove or make conditional.
 	videocontrols.css('bottom', this.options.bottom);
-	videocontrols.append('<div class="playpause" style="cursor: pointer; position: absolute; padding: 9px 18px 9px 18px;"></div>')
+	videocontrols.append('<div class="playpause" style="cursor: pointer; position: absolute; padding: 9px 18px 9px 18px;"></div>');
 	var playpause = videocontrols.find('.playpause');
 	playpause.append('<div class="play" style="display: none; width: 0; height: 0; border-top: 9px solid transparent; border-bottom: 9px solid transparent; border-left: 18px solid white;"></div>');
 	playpause.append('<div class="pause" style="display: none;"><div style="display: inline-block; width: 6px; height: 18px; margin-right: 5px; background: #fff;"></div><div style="display: inline-block; width: 6px; height: 18px; background: #fff;"></div></div>');
@@ -58,6 +60,27 @@ var vidcontrols = function (target, options) {
 	opts.append('<div class="duration" style="color: #fff; margin-top: 10px; font-size: 12px;">0:00</div>');
 	var duration = opts.find('.duration');
 
+	if(options.taptoplaypause) {
+		vidcradle.append('<div class="vidcover" style="position: absolute; top: 0; left: 0;"></div>');
+		var vidcover = vidcradle.find('.vidcover');
+		vidcover.css('height', (target.height() - videocontrols.height()) + 'px');
+		vidcover.css('width', target.width() + 'px');
+	}
+
+	var playpausedelay = false;
+	var doplaypause = function () {
+		if(!playpausedelay) {
+			if(vidstate.paused) {
+				vidstate.play();
+			} else {
+				vidstate.pause();
+			}
+			playpausedelay = true;
+		}
+		setTimeout(function() {
+			playpausedelay = false;
+		}, 500);
+	};
 	var showpausebtn = function () {
 		playpause.find('.play').css('display', 'none');
 		playpause.find('.pause').css('display', 'block');
@@ -78,13 +101,23 @@ var vidcontrols = function (target, options) {
 		target.html(mins + ':' + secs);
 	}
 	var showcontrols = function () {
-		videocontrols.stop().fadeTo(180, 1, function () {
+		videocontrols.stop().fadeTo(250, 1, function () {
 			videocontrols.removeClass('hiding').removeClass('hidden').removeClass('countdownset');
+			if(options.taptoplaypause) {
+				setTimeout(function () {
+					vidcover.css('display', 'block');
+					vidcover.on('mousedown touchstart', function () {doplaypause();});
+				}, 500);
+			}
 		});
 	}
 	var hidecontrols = function () {
 		videocontrols.addClass('hiding');
-		videocontrols.stop().fadeTo(520, 0, function () {
+		if(options.taptoplaypause) {
+			vidcover.unbind();
+			vidcover.css('display', 'none');
+		}
+		videocontrols.stop().fadeTo(500, 0, function () {
 			videocontrols.removeClass('hiding').addClass('hidden');
 		});
 	}
@@ -138,25 +171,14 @@ var vidcontrols = function (target, options) {
 			}
 		}
 	});
-	target.on('touchstart mousedown mouseenter mousemove', function () {
+	vidcradle.on('touchstart mousedown mouseenter mousemove', function () {
 		if(videocontrols.hasClass('hiding') || videocontrols.hasClass('hidden')) {
 			showcontrols();
 		}
 	});
-	var playpausedelay = false;
 	playpause.on('mousedown touchstart', function(e) {
 		e.stopPropagation();
-		if(!playpausedelay) {
-			if(vidstate.paused) {
-				vidstate.play();
-			} else {
-				vidstate.pause();
-			}
-			playpausedelay = true;
-		}
-		setTimeout(function() {
-			playpausedelay = false;
-		}, 555);
+		doplaypause();
 	});
 	var getpointpos = function (event) {
 		var point = event.touches ? event.touches[0] : event;
@@ -215,6 +237,9 @@ var vidcontrols = function (target, options) {
         thedoc.data('startY', thedoc.data('pY'));
         seekbit.data('startX', seekbit.position().left);
 	});
+	videocontrols.on('mousedown touchstart', function () {
+		e.stopPropagation();
+	});
 
 	if(this.options.autoplay) {
 		showpausebtn();
@@ -223,4 +248,11 @@ var vidcontrols = function (target, options) {
 		showplaybtn();
 		vidstate.pause();
 	}
+
+	//add the following listener after a short time.
+	setTimeout(function () {
+		if(options.taptoplaypause) {
+			vidcover.on('mousedown touchstart', function () {doplaypause();});  //delay to prevent touch event firing prematurely.
+		}
+	}, 500);
 }
