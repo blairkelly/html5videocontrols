@@ -2,9 +2,9 @@
 Blair's HTML5 video controls
 */
 var vidcontrols = function (target, options) {
-	var videoholder = $(target);
 	var thedoc = $(document);
-	videoholder.empty();
+	target.removeAttr('controls');
+	var vidstate = target.get(0);
 
 	/*SET DEFAULT OPTIONS*/
 	this.options = {
@@ -36,20 +36,16 @@ var vidcontrols = function (target, options) {
 	var seekbitpointColor = this.options.seekbitpointColor;
 	var seekbitBoundary = Math.abs(this.options.seekbitBoundary);
 	var vidcontrolbottom = this.options.vidcontrolbottom;
-	/*SET OPTIONS EXISTING IN TARGET VIDEOHOLDER. These take precedence*/
-	vidcontrolbottom = videoholder.data('vidcontrolbottom') ? videoholder.data('vidcontrolbottom') : vidcontrolbottom;
-	var vidfile = videoholder.data('vidfile');
-	var vidposter = videoholder.data('vidposter') ? videoholder.data('vidposter') : this.options.vidposter;
-	var vidwidth = videoholder.data('vidwidth') ? videoholder.data('vidwidth') : this.options.vidwidth;
-	var vidheight = videoholder.data('vidheight') ? videoholder.data('vidheight') : this.options.vidheight;
+
+	//check to see if target is already wrapped. if so, destroy wrapper.
+	if(target.closest('.vidcradle').length) {
+            target.closest('.vidcradle').children('*:not(video)').each().remove(); //kills anything in the cradle except the video tag (the baby).
+            target.unwrap(); //removes existing cradle
+    }
 
 	//add the video cradle and the video element
-	videoholder.append('<div class="vidcradle" style="position: relative; display: inline-block; overflow: hidden;"></div>');
-	var vidcradle = videoholder.find('.vidcradle');
-	vidcradle.append('<video poster="'+vidposter+'" width="'+vidwidth+'" height="'+vidheight+'"></video>');
-	var videoelement = vidcradle.find('video');
-	videoelement.append('<source src="'+vidfile+'" type="video/mp4">');
-	var vidstate = videoelement.get(0);
+	target.wrap('<div class="vidcradle" style="position: relative; display: inline-block; overflow: hidden;"></div>');
+	var vidcradle = target.closest('.vidcradle');
 
 	//functions for global use
 	var playpausedelay = false;
@@ -150,140 +146,119 @@ var vidcontrols = function (target, options) {
     }
 
 	//instantiate global element ref definitions
-	var videocontrols = null;
-	var playpause = null;
-	var timedisplay = null;
-	var opts = null;
-	var seekbar = null;
-	var seekfillnegative = null;
-	var seekfill = null;
-	var seekbit = null;
-	var seekbitpoint = null;
-	var duration = null;
-	var vidcover = null;
+	vidcradle.append('<div class="vidcontrols" style="-webkit-touch-callout: none; -webkit-user-select: none; user-select: none; background-color:rgba(0,0,0,0.52); font-family: Arial; height: 36px; bottom: -36px; width: 100%; position: absolute; left: 0;"></div>');
+	var videocontrols = vidcradle.find('.vidcontrols');
+	videocontrols.css('-webkit-overflow-scrolling', 'touch'); //not necessary for iOS 7... should remove or make conditional.
+	videocontrols.append('<div class="playpause" style="cursor: pointer; position: absolute; padding: 9px 18px 9px 18px;"></div>');
+	var playpause = videocontrols.find('.playpause');
+	playpause.append('<div class="play" style="display: none; width: 0; height: 0; border-top: 9px solid transparent; border-bottom: 9px solid transparent; border-left: 18px solid white;"></div>');
+	playpause.append('<div class="pause" style="display: none;"><div style="display: inline-block; width: 6px; height: 18px; margin-right: 5px; background: #fff;"></div><div style="display: inline-block; width: 6px; height: 18px; background: #fff;"></div></div>');
+	videocontrols.append('<div class="time" style="color: #fff; font-size: 12px; position: absolute; top: 10px; left: 60px;">0:00</div>');
+	var timedisplay = videocontrols.find('.time');
+	videocontrols.append('<div class="opts" style="position: absolute; top: 0px; right: 0px; padding-right: 10px;"></div>');
+	var opts = videocontrols.find('.opts');
+	videocontrols.append('<div class="seekbar" style="display: none; position: relative; margin: 15px 0 0 95px; height: 6px; background-color:rgba(10,10,10,0.72);"></div>');
+	var seekbar = videocontrols.find('.seekbar');
+	seekbar.append('<div class="seekfill-negative" style="display: none; position: absolute; top: 0; left: 0; width: 0px; height: 6px;"></div>');
+	var seekfillnegative = seekbar.find('.seekfill-negative');
+	seekfillnegative.css('background-color', seekfillNegativeColor);
+	seekbar.append('<div class="seekfill" style="position: absolute; top: 0; left: 0; width: 0px; height: 6px;"></div>')
+	var seekfill = seekfill = seekbar.find('.seekfill');
+	seekfill.css('background-color', seekfillColor);
+	seekbar.append('<div class="seekbit" style="display: none; cursor: pointer; position: absolute; width: 28px; height: 28px; top: -11px; left: -8px;"></div>')
+	var seekbit = seekbar.find('.seekbit');
+	seekbit.data('seeking', false);
+	seekbit.append('<div class="seekbitpoint" style="position: absolute; width: 16px; height: 16px; -webkit-border-radius: 8px; top: 6px; left: 6px;"></div>');
+	var seekbitpoint = seekbit.find('.seekbitpoint');
+	seekbitpoint.css('background-color', seekbitpointColor);
+	opts.append('<div class="duration" style="color: #fff; margin-top: 10px; font-size: 12px;">0:00</div>');
+	var duration = opts.find('.duration');
+	if(options.taptoplaypause) {
+		vidcradle.append('<div class="vidcover" style="position: absolute; top: 0; left: 0;"></div>');
+		vidcover = vidcradle.find('.vidcover');
+		vidcover.css('height', (target.height() - videocontrols.height()) + 'px');
+		vidcover.css('width', target.width() + 'px');
+	}
 
-	//add onduration change listener.
-	//this is important, because we want to add everything when that duration changes
-	//It seems to be a good indicator for when the video is ready.
-	videoelement.on('canplay', function () {
-		vidcradle.children('*:not(video)').each().remove(); //kills anything in the cradle except the video tag (the baby).
 
-		vidcradle.append('<div class="vidcontrols" style="-webkit-touch-callout: none; -webkit-user-select: none; user-select: none; background-color:rgba(0,0,0,0.52); font-family: Arial; height: 36px; bottom: -36px; width: 100%; position: absolute; left: 0;"></div>');
-		videocontrols = vidcradle.find('.vidcontrols');
-		videocontrols.css('-webkit-overflow-scrolling', 'touch'); //not necessary for iOS 7... should remove or make conditional.
-		videocontrols.append('<div class="playpause" style="cursor: pointer; position: absolute; padding: 9px 18px 9px 18px;"></div>');
-		playpause = videocontrols.find('.playpause');
-		playpause.append('<div class="play" style="display: none; width: 0; height: 0; border-top: 9px solid transparent; border-bottom: 9px solid transparent; border-left: 18px solid white;"></div>');
-		playpause.append('<div class="pause" style="display: none;"><div style="display: inline-block; width: 6px; height: 18px; margin-right: 5px; background: #fff;"></div><div style="display: inline-block; width: 6px; height: 18px; background: #fff;"></div></div>');
-		videocontrols.append('<div class="time" style="color: #fff; font-size: 12px; position: absolute; top: 10px; left: 60px;">0:00</div>');
-		timedisplay = videocontrols.find('.time');
-		videocontrols.append('<div class="opts" style="position: absolute; top: 0px; right: 0px; padding-right: 10px;"></div>');
-		opts = videocontrols.find('.opts');
-		videocontrols.append('<div class="seekbar" style="display: none; position: relative; margin: 15px 0 0 95px; height: 6px; background-color:rgba(10,10,10,0.72);"></div>');
-		seekbar = videocontrols.find('.seekbar');
-		seekbar.append('<div class="seekfill-negative" style="display: none; position: absolute; top: 0; left: 0; width: 0px; height: 6px;"></div>');
-		seekfillnegative = seekbar.find('.seekfill-negative');
-		seekfillnegative.css('background-color', seekfillNegativeColor)
-		seekbar.append('<div class="seekfill" style="position: absolute; top: 0; left: 0; width: 0px; height: 6px;"></div>')
-		seekfill = seekbar.find('.seekfill');
-		seekfill.css('background-color', seekfillColor);
-		//seekbar.append('<div class="seekbit" style="display: none; cursor: pointer; position: absolute; width: 16px; height: 16px; -webkit-border-radius: 8px; top: -5px; left: -1px;"></div>')
-		seekbar.append('<div class="seekbit" style="display: none; cursor: pointer; position: absolute; width: 28px; height: 28px; top: -11px; left: -8px;"></div>')
-		seekbit = seekbar.find('.seekbit');
-		seekbit.data('seeking', false);
-		seekbit.append('<div class="seekbitpoint" style="position: absolute; width: 16px; height: 16px; -webkit-border-radius: 8px; top: 6px; left: 6px;"></div>');
-		seekbitpoint = seekbit.find('.seekbitpoint');
-		seekbitpoint.css('background-color', seekbitpointColor);
-		opts.append('<div class="duration" style="color: #fff; margin-top: 10px; font-size: 12px;">0:00</div>');
-		duration = opts.find('.duration');
-		if(options.taptoplaypause) {
-			vidcradle.append('<div class="vidcover" style="position: absolute; top: 0; left: 0;"></div>');
-			vidcover = vidcradle.find('.vidcover');
-			vidcover.css('height', (videoelement.height() - videocontrols.height()) + 'px');
-			vidcover.css('width', videoelement.width() + 'px');
+
+	//LISTENERS
+	//clear existing event listeners on certain elements
+	vidcradle.unbind();
+	target.unbind();
+	vidcradle.on('touchstart mousedown mouseenter mousemove', function () {
+		if(videocontrols.hasClass('hiding') || videocontrols.hasClass('hidden')) {
+			showcontrols();
 		}
+	});
+	playpause.on('mousedown touchstart', function(e) {
+		e.stopPropagation();
+		doplaypause();
+	});
+	seekbit.on('mousedown touchstart', function (event) {
+		event.preventDefault();
+		event.stopPropagation();
+		showcontrols();
+		seekfillnegative.css('width', seekfill.width() + 'px');
+		seekfillnegative.css('display', 'block');
+		seekbit.data('seeking', true);
+		seekbit.data('touched', true);
+		seekbitpoint.css('background-color', seekbitpointActiveColor);
+        thedoc.on('mousemove touchmove', doseek);
+        thedoc.on('mouseup touchend', breakpoint);
+        getpointpos(event.originalEvent);
+        thedoc.data('startX', thedoc.data('pX'));
+        thedoc.data('startY', thedoc.data('pY'));
+        seekbit.data('startX', seekbit.position().left);
+	});
+	videocontrols.on('mousedown touchstart', function (e) {
+		e.stopPropagation();
+	});
+	target.on('seeked', function () {
+		showcontrols();
+	});
+	target.on('play', function () {
+		if(!showonstart) {
+			showonstart = true; //just stops this from activating again.
+			videocontrols.css('bottom', vidcontrolbottom);
+			vidcradle.css('overflow', 'visible');
+		}
+		showpausebtn();
+		videocontrols.data('startedat', vidstate.currentTime);
+	});
+	target.on('pause', function () {
+		showplaybtn();
+	});
+	target.on('timeupdate', function () {
+		if(!seekbit.data('seeking')) {
+			updatetime(timedisplay, vidstate.currentTime);
+			var percentage = vidstate.currentTime / vidstate.duration;
+			var seekbitpos = ((seekbit.data('fullrange') * percentage) - seekbitBoundary) + 'px';
+			var seekfillwidth = (seekbar.width() * percentage) + 'px';
+			seekbit.css('left', seekbitpos);
+			seekfill.css('width', seekfillwidth);
 
-		//clear existing event listeners on certain elements
-		vidcradle.unbind();
-		//videoelement.unbind();
+			if(videocontrols.hasClass('countdownset')) {
+			} else {
+				videocontrols.data('startedat', vidstate.currentTime);
+				videocontrols.addClass('countdownset');
+			}
 
-		//add appropriate listeners
-		vidcradle.on('touchstart mousedown mouseenter mousemove', function () {
 			if(videocontrols.hasClass('hiding') || videocontrols.hasClass('hidden')) {
-				showcontrols();
-			}
-		});
-		playpause.on('mousedown touchstart', function(e) {
-			e.stopPropagation();
-			doplaypause();
-		});
-		
-		seekbit.on('mousedown touchstart', function (event) {
-			event.preventDefault();
-			event.stopPropagation();
-			showcontrols();
-			seekfillnegative.css('width', seekfill.width() + 'px');
-			seekfillnegative.css('display', 'block');
-			seekbit.data('seeking', true);
-			seekbit.data('touched', true);
-			seekbitpoint.css('background-color', seekbitpointActiveColor);
-	        thedoc.on('mousemove touchmove', doseek);
-	        thedoc.on('mouseup touchend', breakpoint);
-	        getpointpos(event.originalEvent);
-	        thedoc.data('startX', thedoc.data('pX'));
-	        thedoc.data('startY', thedoc.data('pY'));
-	        seekbit.data('startX', seekbit.position().left);
-		});
-		videocontrols.on('mousedown touchstart', function (e) {
-			e.stopPropagation();
-		});
-
-		videoelement.on('seeked', function () {
-			showcontrols();
-		});
-		videoelement.on('play', function () {
-			if(!showonstart) {
-				showonstart = true; //just stops this from activating again.
-				videocontrols.css('bottom', vidcontrolbottom);
-				videoholder.css('overflow', 'visible');
-			}
-			showpausebtn();
-			videocontrols.data('startedat', vidstate.currentTime);
-		});
-		videoelement.on('pause', function () {
-			showplaybtn();
-		});
-		videoelement.on('timeupdate', function () {
-			if(!seekbit.data('seeking')) {
-				updatetime(timedisplay, vidstate.currentTime);
-				var percentage = vidstate.currentTime / vidstate.duration;
-				var seekbitpos = ((seekbit.data('fullrange') * percentage) - seekbitBoundary) + 'px';
-				var seekfillwidth = (seekbar.width() * percentage) + 'px';
-				seekbit.css('left', seekbitpos);
-				seekfill.css('width', seekfillwidth);
-
-				if(videocontrols.hasClass('countdownset')) {
-				} else {
-					videocontrols.data('startedat', vidstate.currentTime);
-					videocontrols.addClass('countdownset');
-				}
-
-				if(videocontrols.hasClass('hiding') || videocontrols.hasClass('hidden')) {
-				} else {
-					var timediff = (vidstate.currentTime - videocontrols.data('startedat')) * 1000; //milliseconds
-					if(timediff > 3200) {
-						hidecontrols();
-					}
-				}
-			} else if (!seekbit.data('touched')) {
-				var seekdiff = Math.abs(seekbit.data('seekto') - vidstate.currentTime);
-				if(seekdiff < 5) {
-					seekbit.data('seeking', false);
+			} else {
+				var timediff = (vidstate.currentTime - videocontrols.data('startedat')) * 1000; //milliseconds
+				if(timediff > 3200) {
+					hidecontrols();
 				}
 			}
-		});
-
-
+		} else if (!seekbit.data('touched')) {
+			var seekdiff = Math.abs(seekbit.data('seekto') - vidstate.currentTime);
+			if(seekdiff < 5) {
+				seekbit.data('seeking', false);
+			}
+		}
+	});
+	target.on('canplay', function () {
 		//set some vars and such
 		seekbar.css('display', 'none');
 		updatetime(duration, vidstate.duration);
@@ -298,20 +273,21 @@ var vidcontrols = function (target, options) {
 		if(showonstart) {
 			videocontrols.css('bottom', vidcontrolbottom);
 		}
-		if(autoplay) {
-			showpausebtn();
-			vidstate.play();
-		} else {
-			showplaybtn();
-			vidstate.pause();
-		}
 
-		//add the following listener after a short time.
-		setTimeout(function () {
-			if(options.taptoplaypause) {
-				vidcover.on('mousedown touchstart', function () {doplaypause();});  //delay to prevent touch event firing prematurely.
-			}
-		}, 200);
 	});
-	
+
+	//add the following listener after a short time. Has to be here: iOS doesn't add the listeners until the video is activated by the user
+	setTimeout(function () {
+		if(options.taptoplaypause) {
+			vidcover.on('mousedown touchstart', function () {doplaypause();});  //delay to prevent touch event firing prematurely.
+		}
+	}, 250);
+
+	if(autoplay) {
+		showpausebtn();
+		vidstate.play();
+	} else {
+		showplaybtn();
+		vidstate.pause();
+	}
 }
