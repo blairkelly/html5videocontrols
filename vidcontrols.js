@@ -6,6 +6,11 @@ var vidcontrols = function (target, options) {
 	target.removeAttr('controls');
 	var vidstate = target.get(0);
 
+	var isIOS = ((/iphone|ipad/gi).test(navigator.appVersion));
+	var downevent = isIOS ? "touchstart" : "mousedown";
+	var upevent = isIOS ? "touchend" : "mouseup";
+	var moveevent = isIOS ? "touchmove" : "mouseenter";
+
 	/*SET DEFAULT OPTIONS*/
 	this.options = {
 		seek: true,
@@ -50,6 +55,7 @@ var vidcontrols = function (target, options) {
 	//functions for global use
 	var playpausedelay = false;
 	var doplaypause = function () {
+		showcontrols();
 		if(!playpausedelay) {
 			if(vidstate.paused) {
 				vidstate.play();
@@ -60,7 +66,7 @@ var vidcontrols = function (target, options) {
 		}
 		setTimeout(function() {
 			playpausedelay = false;
-		}, 500);
+		}, 250);
 	};
 	var showpausebtn = function () {
 		playpause.find('.play').css('display', 'none');
@@ -86,8 +92,8 @@ var vidcontrols = function (target, options) {
 			if(options.taptoplaypause) {
 				setTimeout(function () {
 					vidcover.css('display', 'block');
-					vidcover.on('mousedown touchstart', function () {doplaypause();});
-				}, 500);
+					vidcover.on(downevent, function () {doplaypause();});
+				}, 250);
 			}
 		});
 	}
@@ -142,7 +148,7 @@ var vidcontrols = function (target, options) {
     	setTimeout(function() {
     		vidstate.play();
     		seekbit.data('touched', false);
-    	}, 300);
+    	}, 250);
     }
 
 	//instantiate global element ref definitions
@@ -186,16 +192,16 @@ var vidcontrols = function (target, options) {
 	//clear existing event listeners on certain elements
 	vidcradle.unbind();
 	target.unbind();
-	vidcradle.on('touchstart mousedown mouseenter mousemove', function () {
+	vidcradle.on(downevent + ' ' + moveevent, function () {
 		if(videocontrols.hasClass('hiding') || videocontrols.hasClass('hidden')) {
 			showcontrols();
 		}
 	});
-	playpause.on('mousedown touchstart', function(e) {
+	playpause.on(downevent, function(e) {
 		e.stopPropagation();
 		doplaypause();
 	});
-	seekbit.on('mousedown touchstart', function (event) {
+	seekbit.on(downevent, function (event) {
 		event.preventDefault();
 		event.stopPropagation();
 		showcontrols();
@@ -204,14 +210,14 @@ var vidcontrols = function (target, options) {
 		seekbit.data('seeking', true);
 		seekbit.data('touched', true);
 		seekbitpoint.css('background-color', seekbitpointActiveColor);
-        thedoc.on('mousemove touchmove', doseek);
-        thedoc.on('mouseup touchend', breakpoint);
+        thedoc.on(moveevent, doseek);
+        thedoc.on(upevent, breakpoint);
         getpointpos(event.originalEvent);
         thedoc.data('startX', thedoc.data('pX'));
         thedoc.data('startY', thedoc.data('pY'));
         seekbit.data('startX', seekbit.position().left);
 	});
-	videocontrols.on('mousedown touchstart', function (e) {
+	videocontrols.on(downevent, function (e) {
 		e.stopPropagation();
 	});
 	target.on('seeked', function () {
@@ -279,7 +285,7 @@ var vidcontrols = function (target, options) {
 	//add the following listener after a short time. Has to be here: iOS doesn't add the listeners until the video is activated by the user
 	setTimeout(function () {
 		if(options.taptoplaypause) {
-			vidcover.on('mousedown touchstart', function () {doplaypause();});  //delay to prevent touch event firing prematurely.
+			vidcover.on(downevent, function () {doplaypause();});  //delay to prevent touch event firing prematurely.
 		}
 	}, 250);
 
