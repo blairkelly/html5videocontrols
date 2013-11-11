@@ -9,7 +9,7 @@ var vidcontrols = function (target, options) {
 	var isIOS = ((/iphone|ipad/gi).test(navigator.appVersion));
 	var downevent = isIOS ? "touchstart" : "mousedown";
 	var upevent = isIOS ? "touchend" : "mouseup";
-	var moveevent = isIOS ? "touchmove" : "mouseenter";
+	var moveevent = isIOS ? "touchmove" : "mousemove";
 
 	/*SET DEFAULT OPTIONS*/
 	this.options = {
