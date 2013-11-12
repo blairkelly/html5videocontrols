@@ -19,6 +19,7 @@ var vidcontrols = function (target, options) {
 		autoplay: false,
 		showonstart: true,
 		taptoplaypause: false,
+		displaydelay: 3000,
 		seekbitpointColor: '#FFF',
 		seekbitpointActiveColor: '#CCC',
 		seekbitBoundary: 7,
@@ -34,6 +35,7 @@ var vidcontrols = function (target, options) {
 		this.options[i] = options[i];
 	}
 	var autoplay = this.options.autoplay;
+	var displaydelay = this.options.displaydelay;
 	var showonstart = this.options.showonstart;
 	var seekbitpointColor = this.options.seekbitpointColor;
 	var seekbitpointActiveColor = this.options.seekbitpointActiveColor;
@@ -254,7 +256,7 @@ var vidcontrols = function (target, options) {
 			if(videocontrols.hasClass('hiding') || videocontrols.hasClass('hidden')) {
 			} else {
 				var timediff = (vidstate.currentTime - videocontrols.data('startedat')) * 1000; //milliseconds
-				if(timediff > 2700) {
+				if(timediff > displaydelay) {
 					hidecontrols();
 				}
 			}
