@@ -20,6 +20,7 @@ var vidcontrols = function (target, options) {
 		showonstart: true,
 		taptoplaypause: false,
 		displaydelay: 3000,
+		playpausedelay: 400,
 		seekbitpointColor: '#FFF',
 		seekbitpointActiveColor: '#CCC',
 		seekbitBoundary: 7,
@@ -36,6 +37,7 @@ var vidcontrols = function (target, options) {
 	}
 	var autoplay = this.options.autoplay;
 	var displaydelay = this.options.displaydelay;
+	var playpausedelay_duration = this.options.playpausedelay;
 	var showonstart = this.options.showonstart;
 	var seekbitpointColor = this.options.seekbitpointColor;
 	var seekbitpointActiveColor = this.options.seekbitpointActiveColor;
@@ -69,7 +71,7 @@ var vidcontrols = function (target, options) {
 		}
 		setTimeout(function() {
 			playpausedelay = false;
-		}, 250);
+		}, playpausedelay_duration);
 	};
 	var showpausebtn = function () {
 		playpause.find('.play').css('display', 'none');
