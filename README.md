@@ -9,3 +9,6 @@ Pass the main function, vidcontrols, a target video element. The video element w
 in a wrapper and the controls will be dropped in with that wrapper.
 
 Dependencies: jQuery
+
+TO DO:
+-FIX issue of videocover causing the browser window to crash.
