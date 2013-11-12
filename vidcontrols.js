@@ -4,12 +4,13 @@ Blair's HTML5 video controls
 var vidcontrols = function (target, options) {
 	var thedoc = $(document);
 	target.removeAttr('controls');
+	target.removeAttr('autoplay');
 	var vidstate = target.get(0);
 
 	var isIOS = ((/iphone|ipad/gi).test(navigator.appVersion));
 	var downevent = isIOS ? "touchstart" : "mousedown";
 	var upevent = isIOS ? "touchend" : "mouseup";
-	var moveevent = isIOS ? "touchmove" : "mouseenter";
+	var moveevent = isIOS ? "touchmove" : "mousemove";
 
 	/*SET DEFAULT OPTIONS*/
 	this.options = {
@@ -87,24 +88,24 @@ var vidcontrols = function (target, options) {
 		target.html(mins + ':' + secs);
 	}
 	var showcontrols = function () {
+		if(options.taptoplaypause) {
+			setTimeout(function () {
+				vidcover.css('display', 'block');
+				vidcover.on(downevent, function () {doplaypause();});
+			}, 50);
+		}
 		videocontrols.stop().fadeTo(250, 1, function () {
 			videocontrols.removeClass('hiding').removeClass('hidden').removeClass('countdownset');
-			if(options.taptoplaypause) {
-				setTimeout(function () {
-					vidcover.css('display', 'block');
-					vidcover.on(downevent, function () {doplaypause();});
-				}, 250);
-			}
 		});
 	}
 	var hidecontrols = function () {
 		videocontrols.addClass('hiding');
-		if(options.taptoplaypause) {
-			vidcover.unbind();
-			vidcover.css('display', 'none');
-		}
 		videocontrols.stop().fadeTo(500, 0, function () {
 			videocontrols.removeClass('hiding').addClass('hidden');
+			if(options.taptoplaypause) {
+				vidcover.unbind();
+				vidcover.css('display', 'none');
+			}
 		});
 	}
 	var getpointpos = function (event) {
@@ -253,7 +254,7 @@ var vidcontrols = function (target, options) {
 			if(videocontrols.hasClass('hiding') || videocontrols.hasClass('hidden')) {
 			} else {
 				var timediff = (vidstate.currentTime - videocontrols.data('startedat')) * 1000; //milliseconds
-				if(timediff > 3200) {
+				if(timediff > 2700) {
 					hidecontrols();
 				}
 			}
@@ -287,7 +288,7 @@ var vidcontrols = function (target, options) {
 		if(options.taptoplaypause) {
 			vidcover.on(downevent, function () {doplaypause();});  //delay to prevent touch event firing prematurely.
 		}
-	}, 250);
+	}, 120);
 
 	if(autoplay) {
 		showpausebtn();
