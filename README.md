@@ -1,7 +1,7 @@
 html5videocontrols
 ==================
 
-PRESENTLY SUPPORTING ONLY iOS and CHROME.
+PRESENTLY SUPPORTING ONLY iPad (2nd gen and higher) and CHROME.
 
 Dependencies: jQuery
 

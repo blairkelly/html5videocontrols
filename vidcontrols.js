@@ -20,7 +20,7 @@ var vidcontrols = function (target, options) {
 		autoplay: false,
 		showonstart: true,
 		taptoplaypause: false,
-		displaydelay: 3000,
+		displaydelay: 2,
 		playpausedelay: 100,
 		startat: null,
 		seekbitpointColor: '#FFF',
