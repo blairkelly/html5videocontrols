@@ -20,7 +20,8 @@ var vidcontrols = function (target, options) {
 		showonstart: true,
 		taptoplaypause: false,
 		displaydelay: 3000,
-		playpausedelay: 400,
+		playpausedelay: 100,
+		startat: null,
 		seekbitpointColor: '#FFF',
 		seekbitpointActiveColor: '#CCC',
 		seekbitBoundary: 7,
@@ -38,7 +39,9 @@ var vidcontrols = function (target, options) {
 	var autoplay = this.options.autoplay;
 	var displaydelay = this.options.displaydelay;
 	var playpausedelay_duration = this.options.playpausedelay;
+	var taptoplaypause = this.options.taptoplaypause;
 	var showonstart = this.options.showonstart;
+	var startat = this.options.startat;
 	var seekbitpointColor = this.options.seekbitpointColor;
 	var seekbitpointActiveColor = this.options.seekbitpointActiveColor;
 	var seekfillNegativeColor = this.options.seekfillNegativeColor;
@@ -92,12 +95,6 @@ var vidcontrols = function (target, options) {
 		target.html(mins + ':' + secs);
 	}
 	var showcontrols = function () {
-		if(options.taptoplaypause) {
-			setTimeout(function () {
-				vidcover.css('display', 'block');
-				vidcover.on(downevent, function () {doplaypause();});
-			}, 50);
-		}
 		videocontrols.stop().fadeTo(250, 1, function () {
 			videocontrols.removeClass('hiding').removeClass('hidden').removeClass('countdownset');
 		});
@@ -106,10 +103,6 @@ var vidcontrols = function (target, options) {
 		videocontrols.addClass('hiding');
 		videocontrols.stop().fadeTo(500, 0, function () {
 			videocontrols.removeClass('hiding').addClass('hidden');
-			if(options.taptoplaypause) {
-				vidcover.unbind();
-				vidcover.css('display', 'none');
-			}
 		});
 	}
 	var getpointpos = function (event) {
@@ -179,19 +172,11 @@ var vidcontrols = function (target, options) {
 	seekbar.append('<div class="seekbit" style="display: none; cursor: pointer; position: absolute; width: 28px; height: 28px; top: -11px; left: -8px;"></div>')
 	var seekbit = seekbar.find('.seekbit');
 	seekbit.data('seeking', false);
-	seekbit.append('<div class="seekbitpoint" style="position: absolute; width: 16px; height: 16px; -webkit-border-radius: 8px; top: 6px; left: 6px;"></div>');
+	seekbit.append('<div class="seekbitpoint" style="position: absolute; width: 16px; height: 16px; -webkit-border-radius: 8px; border-radius: 8px; top: 6px; left: 6px;"></div>');
 	var seekbitpoint = seekbit.find('.seekbitpoint');
 	seekbitpoint.css('background-color', seekbitpointColor);
 	opts.append('<div class="duration" style="color: #fff; margin-top: 10px; font-size: 12px;">0:00</div>');
 	var duration = opts.find('.duration');
-	if(options.taptoplaypause) {
-		vidcradle.append('<div class="vidcover" style="position: absolute; top: 0; left: 0;"></div>');
-		vidcover = vidcradle.find('.vidcover');
-		vidcover.css('height', (target.height() - videocontrols.height()) + 'px');
-		vidcover.css('width', target.width() + 'px');
-	}
-
-
 
 	//LISTENERS
 	//clear existing event listeners on certain elements
@@ -208,6 +193,7 @@ var vidcontrols = function (target, options) {
 	});
 	seekbit.on(downevent, function (event) {
 		event.preventDefault();
+		//event.defaultPrevented();
 		event.stopPropagation();
 		showcontrols();
 		seekfillnegative.css('width', seekfill.width() + 'px');
@@ -257,7 +243,7 @@ var vidcontrols = function (target, options) {
 
 			if(videocontrols.hasClass('hiding') || videocontrols.hasClass('hidden')) {
 			} else {
-				var timediff = (vidstate.currentTime - videocontrols.data('startedat')) * 1000; //milliseconds
+				var timediff = (vidstate.currentTime - videocontrols.data('startedat')); //seconds
 				if(timediff > displaydelay) {
 					hidecontrols();
 				}
@@ -281,18 +267,22 @@ var vidcontrols = function (target, options) {
 		seekbit.data('boundaryLeft', (0 - seekbitBoundary));
 		seekbit.data('boundaryRight', (seekbit.data('fullrange') - seekbitBoundary));
 
+		if(startat) {
+			vidstate.currentTime = startat;
+			startat = null;
+		}
+
 		if(showonstart) {
 			videocontrols.css('bottom', vidcontrolbottom);
 		}
-
 	});
 
 	//add the following listener after a short time. Has to be here: iOS doesn't add the listeners until the video is activated by the user
 	setTimeout(function () {
-		if(options.taptoplaypause) {
-			vidcover.on(downevent, function () {doplaypause();});  //delay to prevent touch event firing prematurely.
+		if(taptoplaypause) {
+			target.on(downevent, function () {doplaypause();});  //delay to prevent touch event firing prematurely.
 		}
-	}, 120);
+	}, 100);
 
 	if(autoplay) {
 		showpausebtn();

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>HTML5 Video Controls</title>
+	<script src="jquery/jquery-2.0.3.js"></script>
+	<script src="vidcontrols.js"></script>
+</head>
+
+<body style="background: #456;">
+	<div class="demoholder" style="margin-top: 25px; text-align: center;">
+		<div class="videoholder" style="display: inline-block;"> <!-- not targetted -->
+			<video width="747" height="420" controls>
+				<source src="dunebugs-high.mp4" type="video/mp4">
+				Your browser does not support the video tag.
+			</video>
+		</div>
+	</div>
+</body>
+</html>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		vidcontrols($('.demoholder .videoholder video'), {
+			autoplay: false, 
+			startat: 3, 
+			taptoplaypause: true, 
+			vidcontrolbottom: '5px',
+			displaydelay: 1
+		});
+	});
+</script>
