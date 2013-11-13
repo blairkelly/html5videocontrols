@@ -58,7 +58,7 @@ var vidcontrols = function (target, options) {
     }
 
 	//add the video cradle and the video element
-	target.wrap('<div class="vidcradle" style="position: relative; display: inline-block; overflow: hidden;"></div>');
+	target.wrap('<div class="vidcradle" style="-webkit-touch-callout: none; -webkit-user-select: none; user-select: none; position: relative; display: inline-block; overflow: hidden;"></div>');
 	var vidcradle = target.closest('.vidcradle');
 
 	//functions for global use
@@ -151,7 +151,7 @@ var vidcontrols = function (target, options) {
     }
 
 	//instantiate global element ref definitions
-	vidcradle.append('<div class="vidcontrols" style="-webkit-touch-callout: none; -webkit-user-select: none; user-select: none; background-color:rgba(0,0,0,0.52); font-family: Arial; height: 36px; bottom: -36px; width: 100%; position: absolute; left: 0;"></div>');
+	vidcradle.append('<div class="vidcontrols" style="background-color:rgba(0,0,0,0.52); font-family: Arial; height: 36px; bottom: -36px; width: 100%; position: absolute; left: 0;"></div>');
 	var videocontrols = vidcradle.find('.vidcontrols');
 	videocontrols.css('-webkit-overflow-scrolling', 'touch'); //not necessary for iOS 7... should remove or make conditional.
 	videocontrols.append('<div class="playpause" style="cursor: pointer; position: absolute; padding: 9px 18px 9px 18px;"></div>');
