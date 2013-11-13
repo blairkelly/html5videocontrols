@@ -6,6 +6,7 @@ var vidcontrols = function (target, options) {
 	target.removeAttr('controls');
 	target.removeAttr('autoplay');
 	var vidstate = target.get(0);
+	var firstload = true;
 
 	var isIOS = ((/iphone|ipad/gi).test(navigator.appVersion));
 	var downevent = isIOS ? "touchstart" : "mousedown";
@@ -267,9 +268,14 @@ var vidcontrols = function (target, options) {
 		seekbit.data('boundaryLeft', (0 - seekbitBoundary));
 		seekbit.data('boundaryRight', (seekbit.data('fullrange') - seekbitBoundary));
 
-		if(startat) {
-			vidstate.currentTime = startat;
-			startat = null;
+		if(firstload) {
+			//firefox seems to force this. annoying.
+			if(startat) {
+				vidstate.currentTime = startat;
+			} else {
+				vidstate.currentTime = 0;
+			}
+			firstload = false;
 		}
 
 		if(showonstart) {
