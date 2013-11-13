@@ -8,10 +8,18 @@
 </head>
 
 <body style="background: #456;">
-	<div class="demoholder" style="margin-top: 25px; text-align: center;">
+	<div class="demoholder" style="margin-top: 25px; text-align: center;  color: #fff;  font-family: Arial, HelveticaNeue; font-size: 13px;">
+		<span style="text-transform-uppercase; display: inline-block; padding-bottom: 12px; text-decoration: underline; font-weight: bold;">
+			Blair's HTML5 Video Controls
+		</span>
+		<br/>
+		<span style="font-size: 28px; font-weight: bold; display: inline-block; padding-bottom: 16px;">
+			On a Garbage Run With Doug
+		</span>
+		<br/>
 		<div class="videoholder" style="display: inline-block;"> <!-- not targetted -->
-			<video width="747" height="420" controls>
-				<source src="dunebugs-high.mp4" type="video/mp4">
+			<video width="640" height="360" controls>
+				<source src="dunebugs.mp4" type="video/mp4">
 				Your browser does not support the video tag.
 			</video>
 		</div>
@@ -23,9 +31,9 @@
 	$(document).ready(function() {
 		vidcontrols($('.demoholder .videoholder video'), {
 			autoplay: false, 
-			startat: 3, 
+			startat: 7, 
 			taptoplaypause: true, 
-			vidcontrolbottom: '5px',
+			vidcontrolbottom: '3px',
 			displaydelay: 1
 		});
 	});
