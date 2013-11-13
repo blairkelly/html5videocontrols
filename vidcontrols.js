@@ -53,8 +53,8 @@ var vidcontrols = function (target, options) {
 
 	//check to see if target is already wrapped. if so, destroy wrapper.
 	if(target.closest('.vidcradle').length) {
-            target.closest('.vidcradle').children('*:not(video)').each().remove(); //kills anything in the cradle except the video tag (the baby).
-            target.unwrap(); //removes existing cradle
+	    target.closest('.vidcradle').children('*:not(video)').each().remove(); //kills anything in the cradle except the video tag (the baby).
+	    target.unwrap(); //removes existing cradle
     }
 
 	//add the video cradle and the video element
