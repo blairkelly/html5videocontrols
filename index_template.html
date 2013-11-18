@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="expires" content="-1" />
+	<meta content="yes" name="apple-mobile-web-app-capable" />
+	<title>HTML5 Video Controls</title>
+	<script src="jquery/jquery-2.0.3.js"></script>
+	<script src="logging.js"></script>
+	<script src="vidcontrols.js?bdk=@@hash" id="vidctrljs"></script>
+</head>
+
+<style>
+	body {background: #456; text-align: center;}
+	.demoholder {position: relative; margin-top: 25px; color: #fff;  font-family: Arial, HelveticaNeue; font-size: 13px;}
+	.demoholder a {color: #fff; text-transform: uppercase; display: inline-block; padding-bottom: 12px; text-decoration: underline; font-weight: bold;}
+	.demoholder span {font-size: 28px; font-weight: bold; display: inline-block; padding-bottom: 16px;}
+	.feedback {font-family: Arial, Helvetica; font-weight: bold; font-size: 12px; width:620px; background: #dedede; color: #345; padding:10px; margin-top: 12px; display: inline-block; text-align: left; line-height: 1.5;}
+	.hidden {display: none;}
+</style>
+
+<body>
+	<div class="demoholder">
+		<a href="https://github.com/blairkelly/html5videocontrols" target="_blank">
+			Blair's HTML5 Video Controls
+		</a>
+		<br/>
+		<span>
+			On a Garbage Run With Doug.
+		</span>
+		<br/>
+		<div class="videoholder" style="display: inline-block;"> <!-- not targetted -->
+			<video width="640" height="360" controls autoplay>
+				<source src="dunebugs.mp4" type="video/mp4">
+				Your browser does not support the video tag.
+			</video>
+		</div>
+	</div>
+	<div class="feedback hidden"></div>
+</body>
+</html>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		vidcontrols($('.demoholder .videoholder video'), {
+			autoplay: false, 
+			startat: 7, 
+			taptoplaypause: true, 
+			vidcontrolbottom: '3px',
+			displaydelay: 1
+		});
+	});
+</script>

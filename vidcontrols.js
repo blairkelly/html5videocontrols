@@ -297,4 +297,5 @@ var vidcontrols = function (target, options) {
 		showplaybtn();
 		vidstate.pause();
 	}
+
 }
