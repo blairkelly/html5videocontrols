@@ -3,6 +3,7 @@ Blair's HTML5 video controls
 */
 var vidcontrols = function (target, options) {
 	var thedoc = $(document);
+	var vidparent = target.parent();
 	target.removeAttr('controls');
 	target.removeAttr('autoplay');
 	var vidstate = target.get(0);
@@ -150,7 +151,7 @@ var vidcontrols = function (target, options) {
     	}, 250);
     }
 
-	//instantiate global element ref definitions
+	//construct controls
 	vidcradle.append('<div class="vidcontrols" style="background-color:rgba(0,0,0,0.52); font-family: Arial; height: 36px; bottom: -36px; width: 100%; position: absolute; left: 0;"></div>');
 	var videocontrols = vidcradle.find('.vidcontrols');
 	videocontrols.css('-webkit-overflow-scrolling', 'touch'); //not necessary for iOS 7... should remove or make conditional.
@@ -168,7 +169,7 @@ var vidcontrols = function (target, options) {
 	var seekfillnegative = seekbar.find('.seekfill-negative');
 	seekfillnegative.css('background-color', seekfillNegativeColor);
 	seekbar.append('<div class="seekfill" style="position: absolute; top: 0; left: 0; width: 0px; height: 6px;"></div>')
-	var seekfill = seekfill = seekbar.find('.seekfill');
+	var seekfill = seekbar.find('.seekfill');
 	seekfill.css('background-color', seekfillColor);
 	seekbar.append('<div class="seekbit" style="display: none; cursor: pointer; position: absolute; width: 28px; height: 28px; top: -11px; left: -8px;"></div>')
 	var seekbit = seekbar.find('.seekbit');
@@ -291,11 +292,10 @@ var vidcontrols = function (target, options) {
 	}, 100);
 
 	if(autoplay) {
-		showpausebtn();
 		vidstate.play();
+		showpausebtn();
 	} else {
-		showplaybtn();
 		vidstate.pause();
+		showplaybtn();
 	}
-
 }

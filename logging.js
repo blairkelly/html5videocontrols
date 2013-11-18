@@ -4,7 +4,7 @@ var givefeedback = function (msg) {
 	if(dofeedback) {
 		var feedback = $('.feedback');
 		feedback.removeClass('hidden');
-		feedback.append(msg + '<br/>');
+		feedback.prepend(msg + '<br/>');
 	}
 }
 

@@ -31,25 +31,46 @@
 			On a Garbage Run With Doug.
 		</span>
 		<br/>
-		<div class="videoholder" style="display: inline-block;"> <!-- not targetted -->
-			<video width="640" height="360" controls autoplay>
-				<source src="dunebugs.mp4" type="video/mp4">
+
+		<div class="videoholder" style="display: inline-block; background: url(poster.jpg) center top no-repeat; width: 640px; height: 360px;">
+			<video id="thevideo" style="display: none; opacity: 0;" width="640" height="360" controls autoplay>
+				<source src="" type="video/mp4">
 				Your browser does not support the video tag.
 			</video>
 		</div>
+
 	</div>
 	<div class="feedback hidden"></div>
 </body>
 </html>
 
 <script type="text/javascript">
-	$(document).ready(function() {
-		vidcontrols($('.demoholder .videoholder video'), {
-			autoplay: false, 
-			startat: 7, 
+	var isIOS = ((/iphone|ipad/gi).test(navigator.appVersion));
+	var downevent = isIOS ? "touchstart" : "mousedown";
+	var upevent = isIOS ? "touchend" : "mouseup";
+	var moveevent = isIOS ? "touchmove" : "mousemove";
+
+	var prepvideo = function () {
+		var videl = $('.demoholder .videoholder video');
+		videl.attr('src', 'dunebugs.mp4');
+		console.log("Set Video Source");
+		vidcontrols(videl, {
+			autoplay: true,
 			taptoplaypause: true, 
 			vidcontrolbottom: '3px',
-			displaydelay: 1
+			displaydelay: 2
+		});
+		//videl.css('display', 'inline-block');
+		videl.fadeTo(200, 1, function () {
+			$('.videoholder').css('background', 'none');
+		});
+		console.log("Displayed video");
+	}
+	$(document).ready(function() {
+		$('.videoholder').on(downevent, function () {
+			$(this).unbind();
+			console.log('Prep Vid...');
+			prepvideo();
 		});
 	});
 </script>
