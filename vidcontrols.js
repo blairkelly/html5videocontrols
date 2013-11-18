@@ -289,7 +289,7 @@ var vidcontrols = function (target, options) {
 	var checkshowonstart = function () {
 		if(!showonstart) {
 			showonstart = true; //just stops this from activating again.
-			hidecontrols();
+			//hidecontrols();
 			videocontrols.css('bottom', vidcontrolbottom);
 			showcontrols();
 		}
