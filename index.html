@@ -4,14 +4,17 @@
 	<meta charset="utf-8">
 	<title>HTML5 Video Controls</title>
 	<script src="jquery/jquery-2.0.3.js"></script>
+	<script src="logging.js"></script>
 	<script src="vidcontrols.js"></script>
 </head>
 
 <style>
-	body {background: #456;}
-	.demoholder {margin-top: 25px; text-align: center;  color: #fff;  font-family: Arial, HelveticaNeue; font-size: 13px;}
+	body {background: #456; text-align: center;}
+	.demoholder {position: relative; margin-top: 25px; color: #fff;  font-family: Arial, HelveticaNeue; font-size: 13px;}
 	.demoholder a {color: #fff; text-transform: uppercase; display: inline-block; padding-bottom: 12px; text-decoration: underline; font-weight: bold;}
 	.demoholder span {font-size: 28px; font-weight: bold; display: inline-block; padding-bottom: 16px;}
+	.feedback {font-family: Arial, Helvetica; font-weight: bold; font-size: 12px; width:620px; background: #dedede; color: #345; padding:10px; margin-top: 12px; display: inline-block; text-align: left; line-height: 1.5;}
+	.hidden {display: none;}
 </style>
 
 <body>
@@ -25,12 +28,13 @@
 		</span>
 		<br/>
 		<div class="videoholder" style="display: inline-block;"> <!-- not targetted -->
-			<video width="640" height="360" controls>
+			<video width="640" height="360" controls autoplay>
 				<source src="dunebugs.mp4" type="video/mp4">
 				Your browser does not support the video tag.
 			</video>
 		</div>
 	</div>
+	<div class="feedback hidden"></div>
 </body>
 </html>
 
