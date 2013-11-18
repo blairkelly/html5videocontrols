@@ -9,7 +9,6 @@
 	<title>HTML5 Video Controls</title>
 	<script src="jquery/jquery-2.0.3.js"></script>
 	<script src="logging.js"></script>
-	<script src="vidcontrols.js?bdk=138475918428672145" id="vidctrljs"></script>
 </head>
 
 <style>
@@ -31,25 +30,45 @@
 			On a Garbage Run With Doug.
 		</span>
 		<br/>
-		<div class="videoholder" style="display: inline-block;"> <!-- not targetted -->
-			<video width="640" height="360" controls autoplay>
+		<div class="videoholder" style="display: inline-block;">
+			<!-- you probably don't want to add the controls attribute in the video tag -->
+			<video id="thevideo" width="640" height="360">
 				<source src="dunebugs.mp4" type="video/mp4">
-				Your browser does not support the video tag.
 			</video>
 		</div>
 	</div>
-	<div class="feedback hidden"></div>
+	<div class="feedback">
+		1384766844854537869<br/>
+	</div>
 </body>
 </html>
 
+<script src="vidcontrols.js?bdk=1384766844854537869" id="vidctrljs"></script>
+
 <script type="text/javascript">
-	$(document).ready(function() {
-		vidcontrols($('.demoholder .videoholder video'), {
+	var activatecontrols = function () {
+		vidcontrols($('#thevideo'), {
 			autoplay: false, 
 			startat: 7, 
 			taptoplaypause: true, 
 			vidcontrolbottom: '3px',
 			displaydelay: 1
 		});
+	}
+
+	var ztarget = $('.demoholder .videoholder video');
+	var targetcontrol = $('.demoholder .videoholder video').get(0);
+	$('.feedback').on('click', function () {
+		console.log("play...");
+	 	targetcontrol.play();
+	});
+
+
+	$(document).ready(function() {
+		activatecontrols();
+
+		setTimeout(function () {
+			//activatecontrols();
+		}, 1111);		
 	});
 </script>
