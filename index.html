@@ -9,7 +9,7 @@
 	<title>HTML5 Video Controls</title>
 	<script src="jquery/jquery-2.0.3.js"></script>
 	<script src="logging.js"></script>
-	<script src="vidcontrols.js?bdk=138480298860560362" id="vidctrljs"></script>
+	<script src="vidcontrols.js?bdk=1384807522107695571" id="vidctrljs"></script>
 </head>
 
 <style>
@@ -49,18 +49,17 @@
 	var downevent = isIOS ? "touchstart" : "mousedown";
 	var upevent = isIOS ? "touchend" : "mouseup";
 	var moveevent = isIOS ? "touchmove" : "mousemove";
-
 	var prepvideo = function () {
 		var videl = $('.demoholder .videoholder video');
 		videl.attr('src', 'dunebugs.mp4');
 		console.log("Set Video Source");
 		vidcontrols(videl, {
 			autoplay: true,
+			showonstart: false,
 			taptoplaypause: true, 
 			vidcontrolbottom: '3px',
 			displaydelay: 2
 		});
-		//videl.css('display', 'inline-block');
 		videl.fadeTo(200, 1, function () {
 			$('.videoholder').css('background', 'none');
 		});

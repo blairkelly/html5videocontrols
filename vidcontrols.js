@@ -66,7 +66,8 @@ var vidcontrols = function (target, options) {
 	var playpausedelay = false;
 	var doplaypause = function () {
 		showcontrols();
-		if(!playpausedelay) {
+		var controlsvisibility = parseFloat(videocontrols.css('opacity'));
+		if(!playpausedelay && (controlsvisibility > 0)) {
 			if(vidstate.paused) {
 				vidstate.play();
 			} else {
@@ -97,9 +98,11 @@ var vidcontrols = function (target, options) {
 		target.html(mins + ':' + secs);
 	}
 	var showcontrols = function () {
-		videocontrols.stop().fadeTo(250, 1, function () {
-			videocontrols.removeClass('hiding').removeClass('hidden').removeClass('countdownset');
-		});
+		if(showonstart) {
+			videocontrols.stop().fadeTo(250, 1, function () {
+				videocontrols.removeClass('hiding').removeClass('hidden').removeClass('countdownset');
+			});
+		}
 	}
 	var hidecontrols = function () {
 		videocontrols.addClass('hiding');
@@ -156,6 +159,11 @@ var vidcontrols = function (target, options) {
 	var videocontrols = vidcradle.find('.vidcontrols');
 	videocontrols.css('-webkit-overflow-scrolling', 'touch'); //not necessary for iOS 7... should remove or make conditional.
 	videocontrols.append('<div class="playpause" style="cursor: pointer; position: absolute; padding: 9px 18px 9px 18px;"></div>');
+	if(showonstart) {
+		videocontrols.css('opacity', '1');
+	} else {
+		videocontrols.css('opacity', '0');
+	}
 	var playpause = videocontrols.find('.playpause');
 	playpause.append('<div class="play" style="display: none; width: 0; height: 0; border-top: 9px solid transparent; border-bottom: 9px solid transparent; border-left: 18px solid white;"></div>');
 	playpause.append('<div class="pause" style="display: none;"><div style="display: inline-block; width: 6px; height: 18px; margin-right: 5px; background: #fff;"></div><div style="display: inline-block; width: 6px; height: 18px; background: #fff;"></div></div>');
@@ -217,11 +225,6 @@ var vidcontrols = function (target, options) {
 		showcontrols();
 	});
 	target.on('play', function () {
-		if(!showonstart) {
-			showonstart = true; //just stops this from activating again.
-			videocontrols.css('bottom', vidcontrolbottom);
-			vidcradle.css('overflow', 'visible');
-		}
 		showpausebtn();
 		videocontrols.data('startedat', vidstate.currentTime);
 	});
@@ -268,7 +271,6 @@ var vidcontrols = function (target, options) {
 		seekbit.data('fullrange', seekbar.width() - seekbit.width() + (seekbitBoundary * 2));
 		seekbit.data('boundaryLeft', (0 - seekbitBoundary));
 		seekbit.data('boundaryRight', (seekbit.data('fullrange') - seekbitBoundary));
-
 		if(firstload) {
 			//firefox seems to force this. annoying.
 			if(startat) {
@@ -278,19 +280,33 @@ var vidcontrols = function (target, options) {
 			}
 			firstload = false;
 		}
-
+		console.log(showonstart);
 		if(showonstart) {
 			videocontrols.css('bottom', vidcontrolbottom);
 		}
 	});
 
+	var checkshowonstart = function () {
+		if(!showonstart) {
+			showonstart = true; //just stops this from activating again.
+			hidecontrols();
+			videocontrols.css('bottom', vidcontrolbottom);
+			showcontrols();
+		}
+	}
+
 	//add the following listener after a short time. Has to be here: iOS doesn't add the listeners until the video is activated by the user
 	setTimeout(function () {
-		if(taptoplaypause) {
-			target.on(downevent, function () {doplaypause();});  //delay to prevent touch event firing prematurely.
-		}
-	}, 100);
-
+		target.on(downevent, function () {
+			checkshowonstart();
+			if(taptoplaypause) {
+				doplaypause();
+			}
+		});  //delay to prevent touch event firing prematurely.
+		target.on(moveevent, function () {
+			checkshowonstart();
+		});
+	}, 300);
 	if(autoplay) {
 		vidstate.play();
 		showpausebtn();
