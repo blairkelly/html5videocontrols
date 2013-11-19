@@ -3,6 +3,7 @@ Blair's HTML5 video controls
 */
 var vidcontrols = function (target, options) {
 	var thedoc = $(document);
+	var targetid = target.attr('id');
 	var vidparent = target.parent();
 	target.removeAttr('controls');
 	target.removeAttr('autoplay');
@@ -17,13 +18,14 @@ var vidcontrols = function (target, options) {
 	/*SET DEFAULT OPTIONS*/
 	this.options = {
 		seek: true,
-		fullscreen: false,
+		fullscreen_ok: true,
 		autoplay: false,
 		showonstart: true,
 		taptoplaypause: false,
 		displaydelay: 2,
 		playpausedelay: 100,
 		startat: null,
+		controlbuttoncolor: '#FFF',
 		seekbitpointColor: '#FFF',
 		seekbitpointActiveColor: '#CCC',
 		seekbitBoundary: 7,
@@ -38,12 +40,14 @@ var vidcontrols = function (target, options) {
 	for ( var i in options ) {
 		this.options[i] = options[i];
 	}
+	var fullscreen_ok = this.options.fullscreen_ok;
 	var autoplay = this.options.autoplay;
 	var displaydelay = this.options.displaydelay;
 	var playpausedelay_duration = this.options.playpausedelay;
 	var taptoplaypause = this.options.taptoplaypause;
 	var showonstart = this.options.showonstart;
 	var startat = this.options.startat;
+	var controlbuttoncolor = this.options.controlbuttoncolor;
 	var seekbitpointColor = this.options.seekbitpointColor;
 	var seekbitpointActiveColor = this.options.seekbitpointActiveColor;
 	var seekfillNegativeColor = this.options.seekfillNegativeColor;
@@ -165,11 +169,11 @@ var vidcontrols = function (target, options) {
 		videocontrols.css('opacity', '0');
 	}
 	var playpause = videocontrols.find('.playpause');
-	playpause.append('<div class="play" style="display: none; width: 0; height: 0; border-top: 9px solid transparent; border-bottom: 9px solid transparent; border-left: 18px solid white;"></div>');
-	playpause.append('<div class="pause" style="display: none;"><div style="display: inline-block; width: 6px; height: 18px; margin-right: 5px; background: #fff;"></div><div style="display: inline-block; width: 6px; height: 18px; background: #fff;"></div></div>');
-	videocontrols.append('<div class="time" style="color: #fff; font-size: 12px; position: absolute; top: 10px; left: 60px;">0:00</div>');
+	playpause.append('<div class="play" style="display: none; width: 0; height: 0; border-top: 9px solid transparent; border-bottom: 9px solid transparent; border-left: 18px solid '+controlbuttoncolor+';"></div>');
+	playpause.append('<div class="pause" style="display: none;"><div style="display: inline-block; width: 6px; height: 18px; margin-right: 5px; background: '+controlbuttoncolor+';"></div><div style="display: inline-block; width: 6px; height: 18px; background: '+controlbuttoncolor+';"></div></div>');
+	videocontrols.append('<div class="time" style="color: '+controlbuttoncolor+'; font-size: 12px; position: absolute; top: 10px; left: 60px;">0:00</div>');
 	var timedisplay = videocontrols.find('.time');
-	videocontrols.append('<div class="opts" style="position: absolute; top: 0px; right: 0px; padding-right: 10px;"></div>');
+	videocontrols.append('<div class="opts" style="position: absolute; top: 0px; right: 0px; padding-right: 10px; overflow: auto;"></div>');
 	var opts = videocontrols.find('.opts');
 	videocontrols.append('<div class="seekbar" style="display: none; position: relative; margin: 15px 0 0 95px; height: 6px; background-color:rgba(10,10,10,0.72);"></div>');
 	var seekbar = videocontrols.find('.seekbar');
@@ -185,13 +189,29 @@ var vidcontrols = function (target, options) {
 	seekbit.append('<div class="seekbitpoint" style="position: absolute; width: 16px; height: 16px; -webkit-border-radius: 8px; border-radius: 8px; top: 6px; left: 6px;"></div>');
 	var seekbitpoint = seekbit.find('.seekbitpoint');
 	seekbitpoint.css('background-color', seekbitpointColor);
-	opts.append('<div class="duration" style="color: #fff; margin-top: 10px; font-size: 12px;">0:00</div>');
+	opts.append('<div class="duration" style="float: left; color: '+controlbuttoncolor+'; margin-top: 10px; font-size: 12px;">0:00</div>');
 	var duration = opts.find('.duration');
+	opts.append('<div class="btn_fullscreen" style="float: left; width: 18px; height: 18px; border: 2px solid '+controlbuttoncolor+'; margin-top: 7px; margin-left: 10px; cursor: pointer;"></div>');
+	var btn_fullscreen = opts.find('.btn_fullscreen');
+	if(!fullscreen_ok) {
+		btn_fullscreen.css('display', 'none');
+	}
 
 	//LISTENERS
 	//clear existing event listeners on certain elements
 	vidcradle.unbind();
 	target.unbind();
+
+	btn_fullscreen.on(downevent, function () {
+		var videlem = document.getElementById(targetid);
+		if (videlem.requestFullscreen) {
+		  videlem.requestFullscreen();
+		} else if (videlem.mozRequestFullScreen) {
+		  videlem.mozRequestFullScreen();
+		} else if (videlem.webkitRequestFullscreen) {
+		  videlem.webkitRequestFullscreen();
+		}
+	});
 	vidcradle.on(downevent + ' ' + moveevent, function () {
 		if(videocontrols.hasClass('hiding') || videocontrols.hasClass('hidden')) {
 			showcontrols();
@@ -280,7 +300,6 @@ var vidcontrols = function (target, options) {
 			}
 			firstload = false;
 		}
-		console.log(showonstart);
 		if(showonstart) {
 			videocontrols.css('bottom', vidcontrolbottom);
 		}
