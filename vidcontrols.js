@@ -32,6 +32,7 @@ var vidcontrols = function (target, options) {
 		seekfillColor: '#00aae8',
 		seekfillNegativeColor: "#AAA",
 		vidcontrolbottom: '0px',
+		vidcontrolbgopacity: '0.55',
 		vidposter: "",
 		vidwidth: "",
 		vidheight: ""
@@ -55,16 +56,20 @@ var vidcontrols = function (target, options) {
 	var seekbitpointColor = this.options.seekbitpointColor;
 	var seekbitBoundary = Math.abs(this.options.seekbitBoundary);
 	var vidcontrolbottom = this.options.vidcontrolbottom;
+	var vidcontrolbgopacity = this.options.vidcontrolbgopacity;
 
 	//check to see if target is already wrapped. if so, destroy wrapper.
 	if(target.closest('.vidcradle').length) {
-	    target.closest('.vidcradle').children('*:not(video)').each().remove(); //kills anything in the cradle except the video tag (the baby).
+	    target.closest('.vidcradle').children('*:not(video)').each().remove(); //kills anything in the cradle except the video tag.
 	    target.unwrap(); //removes existing cradle
     }
 
 	//add the video cradle and the video element
 	target.wrap('<div class="vidcradle" style="-webkit-touch-callout: none; -webkit-user-select: none; user-select: none; position: relative; display: inline-block; overflow: hidden;"></div>');
 	var vidcradle = target.closest('.vidcradle');
+
+	//add style for classes not necessarily used at startup
+	//vidcradle.append('');
 
 	//functions for global use
 	var playpausedelay = false;
@@ -103,16 +108,11 @@ var vidcontrols = function (target, options) {
 	}
 	var showcontrols = function () {
 		if(showonstart) {
-			videocontrols.stop().fadeTo(250, 1, function () {
-				videocontrols.removeClass('hiding').removeClass('hidden').removeClass('countdownset');
-			});
+			videocontrols.removeClass('invisible').removeClass('countdownset');
 		}
 	}
 	var hidecontrols = function () {
-		videocontrols.addClass('hiding');
-		videocontrols.stop().fadeTo(500, 0, function () {
-			videocontrols.removeClass('hiding').addClass('hidden');
-		});
+		videocontrols.addClass('invisible');
 	}
 	var getpointpos = function (event) {
 		var point = event.touches ? event.touches[0] : event;
@@ -159,14 +159,15 @@ var vidcontrols = function (target, options) {
     }
 
 	//construct controls
-	vidcradle.append('<div class="vidcontrols" style="background-color:rgba(0,0,0,0.52); font-family: Arial; height: 36px; bottom: -36px; width: 100%; position: absolute; left: 0;"></div>');
+	vidcradle.append('<div class="vidcontrols invisible" style="background-color:rgba(0,0,0,'+vidcontrolbgopacity+'); font-family: Arial; height: 36px; bottom: -36px; width: 100%; position: absolute; left: 0; -webkit-transition: opacity 300ms linear 50ms, z-index 0 linear 300ms;"></div>');
 	var videocontrols = vidcradle.find('.vidcontrols');
 	videocontrols.css('-webkit-overflow-scrolling', 'touch'); //not necessary for iOS 7... should remove or make conditional.
 	videocontrols.append('<div class="playpause" style="cursor: pointer; position: absolute; padding: 9px 18px 9px 18px;"></div>');
 	if(showonstart) {
-		videocontrols.css('opacity', '1');
+		//videocontrols.css('opacity', '1');
+		videocontrols.removeClass('invisible');
 	} else {
-		videocontrols.css('opacity', '0');
+		//videocontrols.css('opacity', '0');
 	}
 	var playpause = videocontrols.find('.playpause');
 	playpause.append('<div class="play" style="display: none; width: 0; height: 0; border-top: 9px solid transparent; border-bottom: 9px solid transparent; border-left: 18px solid '+controlbuttoncolor+';"></div>');
@@ -213,7 +214,7 @@ var vidcontrols = function (target, options) {
 		}
 	});
 	vidcradle.on(downevent + ' ' + moveevent, function () {
-		if(videocontrols.hasClass('hiding') || videocontrols.hasClass('hidden')) {
+		if(videocontrols.hasClass('invisible')) {
 			showcontrols();
 		}
 	});
@@ -266,7 +267,7 @@ var vidcontrols = function (target, options) {
 				videocontrols.addClass('countdownset');
 			}
 
-			if(videocontrols.hasClass('hiding') || videocontrols.hasClass('hidden')) {
+			if(videocontrols.hasClass('invisible')) {
 			} else {
 				var timediff = (vidstate.currentTime - videocontrols.data('startedat')); //seconds
 				if(timediff > displaydelay) {
