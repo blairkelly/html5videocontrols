@@ -32,7 +32,8 @@ var vidcontrols = function (target, options) {
 		seekfillColor: '#00aae8',
 		seekfillNegativeColor: "#AAA",
 		vidcontrolbottom: '0px',
-		vidcontrolbgopacity: '0.55',
+		vidcontrolbgopacity: '0.56',
+		vidcontrolfadeinoutduration: "333",
 		vidposter: "",
 		vidwidth: "",
 		vidheight: ""
@@ -57,6 +58,7 @@ var vidcontrols = function (target, options) {
 	var seekbitBoundary = Math.abs(this.options.seekbitBoundary);
 	var vidcontrolbottom = this.options.vidcontrolbottom;
 	var vidcontrolbgopacity = this.options.vidcontrolbgopacity;
+	var vidcontrolfadeinoutduration = this.options.vidcontrolfadeinoutduration;
 
 	//check to see if target is already wrapped. if so, destroy wrapper.
 	if(target.closest('.vidcradle').length) {
@@ -69,7 +71,7 @@ var vidcontrols = function (target, options) {
 	var vidcradle = target.closest('.vidcradle');
 
 	//add style for classes not necessarily used at startup
-	//vidcradle.append('');
+	vidcradle.append('<style>.invisible {opacity: 0;}</style>');
 
 	//functions for global use
 	var playpausedelay = false;
@@ -159,7 +161,7 @@ var vidcontrols = function (target, options) {
     }
 
 	//construct controls
-	vidcradle.append('<div class="vidcontrols invisible" style="background-color:rgba(0,0,0,'+vidcontrolbgopacity+'); font-family: Arial; height: 36px; bottom: -36px; width: 100%; position: absolute; left: 0; -webkit-transition: opacity 300ms linear 50ms, z-index 0 linear 300ms;"></div>');
+	vidcradle.append('<div class="vidcontrols invisible" style="background-color:rgba(0,0,0,'+vidcontrolbgopacity+'); font-family: Arial; height: 36px; bottom: -36px; width: 100%; position: absolute; left: 0; -webkit-transition: opacity 300ms linear;"></div>');
 	var videocontrols = vidcradle.find('.vidcontrols');
 	videocontrols.css('-webkit-overflow-scrolling', 'touch'); //not necessary for iOS 7... should remove or make conditional.
 	videocontrols.append('<div class="playpause" style="cursor: pointer; position: absolute; padding: 9px 18px 9px 18px;"></div>');

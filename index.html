@@ -9,7 +9,7 @@
 	<title>HTML5 Video Controls</title>
 	<script src="jquery/jquery-2.0.3.js"></script>
 	<script src="logging.js"></script>
-	<script src="vidcontrols.js?bdk=1384823820564855048" id="vidctrljs"></script>
+	<script src="vidcontrols.js?bdk=1385107041997854963" id="vidctrljs"></script>
 </head>
 
 <style>
@@ -19,9 +19,10 @@
 	.demoholder span {font-size: 28px; font-weight: bold; display: inline-block; padding-bottom: 16px;}
 	.feedback {font-family: Arial, Helvetica; font-weight: bold; font-size: 12px; width:620px; background: #dedede; color: #345; padding:10px; margin-top: 12px; display: inline-block; text-align: left; line-height: 1.5;}
 	.hidden {display: none;}
-</style>
 
-<style>.invisible {opacity: 0.0; z-index: -1;}</style>
+	.videoinnerholder {-webkit-transition: opacity 300ms linear; opacity: 0;}
+	.videoinnerholder.visible {opacity: 1;}
+</style>
 
 <body>
 	<div class="demoholder">
@@ -34,11 +35,14 @@
 		</span>
 		<br/>
 
-		<div class="videoholder" style="display: inline-block; background: url(poster.jpg) center top no-repeat; width: 640px; height: 360px;">
-			<video id="thevideo" style="display: none; opacity: 0;" width="640" height="360" controls autoplay>
-				<source src="" type="video/mp4">
-				Your browser does not support the video tag.
-			</video>
+		<div class="videoholder" style="position: relative; display: inline-block; background: url(poster.jpg) center top no-repeat; width: 640px; height: 360px;">
+			<div class="videoinnerholder hidden">
+				<video id="thevideo"  width="640" height="360" controls autoplay>
+					<source src="" type="video/mp4">
+					Your browser does not support the video tag.
+				</video>
+			</div>
+			<div class="activator" style="position: absolute; width: 640px; height: 360px; top: 0; left: 0;"></div>
 		</div>
 
 	</div>
@@ -52,7 +56,7 @@
 	var upevent = isIOS ? "touchend" : "mouseup";
 	var moveevent = isIOS ? "touchmove" : "mousemove";
 	var prepvideo = function () {
-		var videl = $('.demoholder .videoholder video');
+		var videl = $('#thevideo');
 		videl.attr('src', 'dunebugs.mp4');
 		console.log("Set Video Source");
 		vidcontrols(videl, {
@@ -63,14 +67,16 @@
 			vidcontrolbottom: '3px',
 			displaydelay: 2
 		});
-		videl.fadeTo(200, 1, function () {
-			$('.videoholder').css('background', 'none');
-		});
-		console.log("Displayed video");
+		$('.videoinnerholder').addClass('visible');
+		/*setTimeout(function () {
+			console.log("Displayed video");
+		}, 300);*/	
 	}
 	$(document).ready(function() {
-		$('.videoholder').on(downevent, function () {
-			$(this).unbind();
+		$('.activator').on(downevent, function () {
+			$('.videoinnerholder').removeClass('hidden');
+			$('.videoholder').css('background', '#000');
+			$(this).remove();
 			console.log('Prep Vid...');
 			prepvideo();
 		});
